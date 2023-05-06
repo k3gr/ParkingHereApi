@@ -11,6 +11,8 @@ namespace ParkingHereApi.Entities
         public decimal Price { get; set; }
         public string Type { get; set; }
         public bool IsAvailable { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public int ParkingId { get; set; }
         public virtual Parking Parking { get; set; }
     }

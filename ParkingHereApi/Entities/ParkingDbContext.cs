@@ -10,7 +10,7 @@ namespace ParkingHereApi.Entities
 
         }
         public DbSet<Parking> Parkings { get; set; }
-        public DbSet<ParkingSpot> Spaces { get; set; }
+        public DbSet<ParkingSpot> ParkingSpots { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<User> Users { get; set; }
