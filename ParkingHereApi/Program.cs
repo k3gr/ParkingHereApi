@@ -21,6 +21,7 @@ builder.Services.AddScoped<ParkingHereSeeder>();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IParkingService, ParkingService>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
+builder.Services.AddScoped<RequestTimeMiddleware>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -33,6 +34,7 @@ var seeder = scope.ServiceProvider.GetRequiredService<ParkingHereSeeder>();
 seeder.Seed();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseMiddleware<RequestTimeMiddleware>();
 
 app.UseHttpsRedirection();
 
