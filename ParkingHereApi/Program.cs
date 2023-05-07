@@ -20,6 +20,7 @@ builder.Services.AddDbContext<ParkingDbContext>(options => options.UseSqlServer(
 builder.Services.AddScoped<ParkingHereSeeder>();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IParkingService, ParkingService>();
+builder.Services.AddScoped<IParkingSpotService, ParkingSpotService>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<RequestTimeMiddleware>();
 builder.Services.AddSwaggerGen();
