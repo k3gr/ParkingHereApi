@@ -6,6 +6,7 @@ using ParkingHereApi.Services;
 namespace ParkingHereApi.Controllers
 {
     [Route("api/parking")]
+    [ApiController]
     public class ParkingHereController : ControllerBase
     {
         private readonly IParkingService _parkingService;
