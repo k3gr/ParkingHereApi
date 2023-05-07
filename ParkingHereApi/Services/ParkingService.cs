@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ParkingHereApi.Entities;
+using ParkingHereApi.Exceptions;
 using ParkingHereApi.Models;
 
 namespace ParkingHereApi.Services
@@ -10,11 +12,13 @@ namespace ParkingHereApi.Services
     {
         private readonly ParkingDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ILogger<ParkingService> _logger;
 
-        public ParkingService(ParkingDbContext dbContext, IMapper mapper)
+        public ParkingService(ParkingDbContext dbContext, IMapper mapper, ILogger<ParkingService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public IEnumerable<ParkingDto> GetAll() 
@@ -36,6 +40,8 @@ namespace ParkingHereApi.Services
             _dbContext.Parkings.Add(parking);
             _dbContext.SaveChanges();
 
+            _logger.LogInformation($"Parking with id: {parking.Id} has been created");
+
             return parking.Id;
         }
 
@@ -44,6 +50,11 @@ namespace ParkingHereApi.Services
             var parking = _dbContext
                 .Parkings
                 .FirstOrDefault(p => p.Id == id);
+
+            if (parking is null)
+            {
+                throw new NotFoundException("Parking not found");
+            }
 
             parking.Name = dto.Name;
             parking.Description = dto.Description;
@@ -56,9 +67,16 @@ namespace ParkingHereApi.Services
 
         public void Delete(int id)
         {
+            _logger.LogError($"Parking with id: {id} DELETE action invoked");
+
             var parking = _dbContext
                 .Parkings
                 .FirstOrDefault(p => p.Id == id);
+
+            if (parking is null)
+            {
+                throw new NotFoundException("Parking not found");
+            }
 
             _dbContext.Parkings.Remove(parking);
             _dbContext.SaveChanges();
@@ -71,6 +89,11 @@ namespace ParkingHereApi.Services
                 .Include(p => p.Address)
                 .Include(p => p.Spots)
                 .FirstOrDefault(p => p.Id == id);
+
+            if (parking is null)
+            {
+                throw new NotFoundException("Parking not found");
+            }
 
             var result = _mapper.Map<ParkingDto>(parking);
 
