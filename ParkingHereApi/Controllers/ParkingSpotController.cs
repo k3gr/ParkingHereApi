@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ParkingHereApi.Entities;
 using ParkingHereApi.Models;
 using ParkingHereApi.Services;
@@ -7,6 +8,7 @@ namespace ParkingHereApi.Controllers
 {
     [Route("api/parking/{parkingId}/spot")]
     [ApiController]
+    [Authorize(Roles = "Admin,Owner")]
     public class ParkingSpotController : ControllerBase
     {
         private readonly IParkingSpotService _parkingSpotService;
@@ -41,6 +43,7 @@ namespace ParkingHereApi.Controllers
         }
 
         [HttpGet("{spotId}")]
+        [AllowAnonymous]
         public ActionResult<ParkingSpotDto> Get([FromRoute] int parkingId, [FromRoute] int spotId)
         {
             ParkingSpotDto spot = _parkingSpotService.GetById(parkingId, spotId);

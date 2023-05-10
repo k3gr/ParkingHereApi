@@ -7,6 +7,7 @@ namespace ParkingHereApi.Controllers
 {
     [Route("api/parking")]
     [ApiController]
+    [Authorize(Roles = "Admin,Owner")]
     public class ParkingHereController : ControllerBase
     {
         private readonly IParkingService _parkingService;
@@ -23,8 +24,8 @@ namespace ParkingHereApi.Controllers
 
             return Created($"/api/parking/{id}", null);
         }
-
         [HttpGet]
+        [AllowAnonymous]
         public ActionResult<IEnumerable<ParkingDto>> GetAll()
         {
             var parkingsDtos = _parkingService.GetAll();
@@ -49,6 +50,7 @@ namespace ParkingHereApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public ActionResult<ParkingDto> Get([FromRoute] int id)
         {
             var parking = _parkingService.GetById(id);
