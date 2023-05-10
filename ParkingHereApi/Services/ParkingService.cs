@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using ParkingHereApi.Authorization;
 using ParkingHereApi.Entities;
+using ParkingHereApi.Enums;
 using ParkingHereApi.Exceptions;
 using ParkingHereApi.Models;
 
@@ -13,12 +15,16 @@ namespace ParkingHereApi.Services
         private readonly ParkingDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ILogger<ParkingService> _logger;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IUserContextService _userContextService;
 
-        public ParkingService(ParkingDbContext dbContext, IMapper mapper, ILogger<ParkingService> logger)
+        public ParkingService(ParkingDbContext dbContext, IMapper mapper, ILogger<ParkingService> logger, IAuthorizationService authorizationService, IUserContextService userContextService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _logger = logger;
+            _authorizationService = authorizationService;
+            _userContextService = userContextService;
         }
 
         public IEnumerable<ParkingDto> GetAll() 
@@ -37,6 +43,7 @@ namespace ParkingHereApi.Services
         public int Create(CreateParkingDto dto)
         {
             var parking = _mapper.Map<Parking>(dto);
+            parking.CreatedById = _userContextService.GetUserId;
             _dbContext.Parkings.Add(parking);
             _dbContext.SaveChanges();
 
@@ -54,6 +61,14 @@ namespace ParkingHereApi.Services
             if (parking is null)
             {
                 throw new NotFoundException("Parking not found");
+            }
+
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, parking,
+                 new ResourceOperationRequirement(ResourceOperation.Update)).Result;
+
+            if (!authorizationResult.Succeeded)
+            {
+                throw new ForbidException();
             }
 
             parking.Name = dto.Name;
@@ -76,6 +91,14 @@ namespace ParkingHereApi.Services
             if (parking is null)
             {
                 throw new NotFoundException("Parking not found");
+            }
+
+            var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, parking,
+                new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
+
+            if (!authorizationResult.Succeeded)
+            {
+                throw new ForbidException();
             }
 
             _dbContext.Parkings.Remove(parking);
