@@ -6,55 +6,56 @@ using ParkingHereApi.Models;
 
 namespace ParkingHereApi.Services
 {
-    public class ParkingSpotService : IParkingSpotService
+    public class SpotService : ISpotService
     {
         private readonly ParkingDbContext _dbContext;
         private readonly IMapper _mapper;
-        private readonly ILogger<ParkingSpotService> _logger;
+        private readonly ILogger<SpotService> _logger;
 
-        public ParkingSpotService(ParkingDbContext context, IMapper mapper, ILogger<ParkingSpotService> logger)
+        public SpotService(ParkingDbContext context, IMapper mapper, ILogger<SpotService> logger)
         {
             _dbContext = context;
             _mapper = mapper;
             _logger = logger;
         }
-
-        public int Create(int parkingId, CreateParkingSpotDto dto)
+        public List<SpotDto> GetAll(int parkingId)
         {
             var parking = GetParkingById(parkingId);
+            var spotDtos = _mapper.Map<List<SpotDto>>(parking.Spots);
 
-            var spotEntity = _mapper.Map<ParkingSpot>(dto);
-
-            spotEntity.ParkingId = parkingId;
-
-            _dbContext.ParkingSpots.Add(spotEntity);
-            _dbContext.SaveChanges();
-
-            return spotEntity.Id;
+            return spotDtos;
         }
-
-        public ParkingSpotDto GetById(int parkingId, int spotId)
+        public SpotDto GetById(int parkingId, int spotId)
         {
             var parking = GetParkingById(parkingId);
 
-            var spot = _dbContext.ParkingSpots.FirstOrDefault(d => d.Id == spotId);
+            var spot = _dbContext
+                .Spots
+                .Include(s => s.Reservations)
+                .FirstOrDefault(d => d.Id == spotId);
 
             if (spot is null || spot.ParkingId != parkingId)
             {
                 throw new NotFoundException("Spot not found");
             }
 
-            var spotDtos = _mapper.Map<ParkingSpotDto>(spot);
+            var spotDtos = _mapper.Map<SpotDto>(spot);
 
             return spotDtos;
         }
 
-        public List<ParkingSpotDto> GetAll(int parkingId)
+        public int Create(int parkingId, CreateSpotDto dto)
         {
             var parking = GetParkingById(parkingId);
-            var spotDtos = _mapper.Map<List<ParkingSpotDto>>(parking.Spots);
 
-            return spotDtos;
+            var spotEntity = _mapper.Map<Spot>(dto);
+
+            spotEntity.ParkingId = parkingId;
+
+            _dbContext.Spots.Add(spotEntity);
+            _dbContext.SaveChanges();
+
+            return spotEntity.Id;
         }
 
         public void Delete(int parkingId, int spotId)
@@ -63,14 +64,14 @@ namespace ParkingHereApi.Services
 
             var parking = GetParkingById(parkingId);
 
-            var spot = _dbContext.ParkingSpots.FirstOrDefault(s => s.Id == spotId);
+            var spot = _dbContext.Spots.FirstOrDefault(s => s.Id == spotId);
 
             if (spot is null || spot.ParkingId != parkingId)
             {
                 throw new NotFoundException("Spot not found");
             }
 
-            _dbContext.ParkingSpots.Remove(spot);
+            _dbContext.Spots.Remove(spot);
             _dbContext.SaveChanges();
         }
 
@@ -86,7 +87,8 @@ namespace ParkingHereApi.Services
         {
             var parking = _dbContext
                 .Parkings
-                .Include(r => r.Spots)
+                .Include(s => s.Spots)
+                .Include(r => r.Reservations)
                 .FirstOrDefault(r => r.Id == parkingId);
 
             if (parking is null)

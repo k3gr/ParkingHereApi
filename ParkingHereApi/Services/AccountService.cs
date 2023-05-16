@@ -30,7 +30,12 @@ namespace ParkingHereApi.Services
                 LastName = dto.LastName,
                 Email = dto.Email,
                 DateOfBirth = dto.DateOfBirth,
-                RoleId = dto.RoleId
+                RoleId = dto.RoleId,
+                Vehicle = new Vehicle()
+                {
+                    Name = dto.Vehicle.Name,
+                    RegistrationPlate = dto.Vehicle.RegistrationPlate
+                }
             };
             var hashedPassword = _passwordHasher.HashPassword(newUser, dto.Password);
 

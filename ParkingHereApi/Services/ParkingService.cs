@@ -33,11 +33,30 @@ namespace ParkingHereApi.Services
                 .Parkings
                 .Include(p => p.Address)
                 .Include(p => p.Spots)
+                .Include(r => r.Reservations)
                 .ToList();
 
             var parkingsDtos = _mapper.Map<List<ParkingDto>>(parkings);
 
             return parkingsDtos;
+        }
+        public ParkingDto GetById(int id)
+        {
+            var parking = _dbContext
+                .Parkings
+                .Include(p => p.Address)
+                .Include(p => p.Spots)
+                .Include(p => p.Reservations)
+                .FirstOrDefault(p => p.Id == id);
+
+            if (parking is null)
+            {
+                throw new NotFoundException("Parking not found");
+            }
+
+            var result = _mapper.Map<ParkingDto>(parking);
+
+            return result;
         }
 
         public int Create(CreateParkingDto dto)
@@ -103,24 +122,6 @@ namespace ParkingHereApi.Services
 
             _dbContext.Parkings.Remove(parking);
             _dbContext.SaveChanges();
-        }
-
-        public ParkingDto GetById(int id)
-        {
-            var parking = _dbContext
-                .Parkings
-                .Include(p => p.Address)
-                .Include(p => p.Spots)
-                .FirstOrDefault(p => p.Id == id);
-
-            if (parking is null)
-            {
-                throw new NotFoundException("Parking not found");
-            }
-
-            var result = _mapper.Map<ParkingDto>(parking);
-
-            return result;
         }
     }
 }

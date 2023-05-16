@@ -11,6 +11,7 @@
         public string City { get; set; }
         public string Street { get; set; }
         public string PostalCode { get; set; }
-        public List<ParkingSpotDto> Spots { get; set; }
+        public List<SpotDto> Spots { get; set; }
+        //public List<ReservationDto> Reservations { get; set; }
     }
 }

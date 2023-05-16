@@ -10,21 +10,17 @@ namespace ParkingHereApi.Entities
 
         }
         public DbSet<Parking> Parkings { get; set; }
-        public DbSet<ParkingSpot> ParkingSpots { get; set; }
+        public DbSet<Spot> Spots { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<Tenant> Tenants { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
                 .Property(u => u.Email)
-                .IsRequired();
-
-            modelBuilder.Entity<Tenant>()
-                .Property(t => t.Email)
                 .IsRequired();
 
             modelBuilder.Entity<Role>()
@@ -44,7 +40,7 @@ namespace ParkingHereApi.Entities
                 .IsRequired()
                 .HasMaxLength(30);
 
-            modelBuilder.Entity<ParkingSpot>()
+            modelBuilder.Entity<Spot>()
                 .Property(s => s.Type)
                 .IsRequired();
 

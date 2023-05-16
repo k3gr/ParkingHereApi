@@ -13,5 +13,7 @@ namespace ParkingHereApi.Entities
 
         public int RoleId { get; set; }
         public virtual Role Role { get; set; }
+        public int VehicleId { get; set; }
+        public virtual Vehicle Vehicle { get; set; }
     }
 }

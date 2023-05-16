@@ -17,13 +17,6 @@ namespace ParkingHereApi.Controllers
             _parkingService = parkingService;
         }
 
-        [HttpPost]
-        public ActionResult CreateParking([FromBody] CreateParkingDto dto)
-        {
-            var id = _parkingService.Create(dto);
-
-            return Created($"/api/parking/{id}", null);
-        }
         [HttpGet]
         [AllowAnonymous]
         public ActionResult<IEnumerable<ParkingDto>> GetAll()
@@ -33,6 +26,23 @@ namespace ParkingHereApi.Controllers
             return Ok(parkingsDtos);
         }
 
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public ActionResult<ParkingDto> Get([FromRoute] int id)
+        {
+            var parking = _parkingService.GetById(id);
+
+            return Ok(parking);
+        }
+
+        [HttpPost]
+        public ActionResult CreateParking([FromBody] CreateParkingDto dto)
+        {
+            var id = _parkingService.Create(dto);
+
+            return Created($"/api/parking/{id}", null);
+        }
+        
         [HttpPut("{id}")]
         public ActionResult Update([FromBody] UpdateParkingDto dto, [FromRoute] int id)
         {
@@ -47,15 +57,6 @@ namespace ParkingHereApi.Controllers
             _parkingService.Delete(id);
 
             return NoContent();
-        }
-
-        [HttpGet("{id}")]
-        [AllowAnonymous]
-        public ActionResult<ParkingDto> Get([FromRoute] int id)
-        {
-            var parking = _parkingService.GetById(id);
-
-            return Ok(parking);
         }
     }
 }

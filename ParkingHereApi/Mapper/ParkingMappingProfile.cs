@@ -13,14 +13,16 @@ namespace ParkingHereApi.Mapper
                 .ForMember(m => m.Street, c => c.MapFrom(s => s.Address.Street))
                 .ForMember(m => m.PostalCode, c => c.MapFrom(s => s.Address.PostalCode));
 
-            CreateMap<ParkingSpot, ParkingSpotDto>();
+            CreateMap<Spot, SpotDto>();
 
             CreateMap<CreateParkingDto, Parking>()
                 .ForMember(p => p.Address,
                     c => c.MapFrom(dto => new Address()
                     { City = dto.City, PostalCode = dto.PostalCode, Street = dto.Street }));
 
-            CreateMap<CreateParkingSpotDto, ParkingSpot>();
+            CreateMap<CreateSpotDto, Spot>();
+            CreateMap<Reservation, ReservationDto>();
+            CreateMap<CreateReservationDto, Reservation>();
         }
     }
 }
