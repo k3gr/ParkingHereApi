@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ParkingHereApi.Entities;
 using ParkingHereApi.Enums;
+using ParkingHereApi.Models;
 
 namespace ParkingHereApi.Seeder
 {
@@ -74,53 +75,45 @@ namespace ParkingHereApi.Seeder
                     Type = "",
                     ContactEmail = "contact@parking-przy-lotnisku.com",
                     ContactNumber = "456789345",
-                    Spots = new List<ParkingSpot>()
+                    Spots = new List<Spot>()
                     {
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Standard.ToString(),
                             Price = 59.90M,
                             IsAvailable = false,
-                            StartDate = new DateTime(2023, 1, 12),
-                            EndDate = new DateTime(2023, 1, 16),
                         },
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Standard.ToString(),
                             Price = 59.90M,
                             IsAvailable = false,
-                            StartDate = new DateTime(2023, 1, 11),
-                            EndDate = new DateTime(2023, 1, 13),
                         },
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Standard.ToString(),
                             Price = 59.90M,
                             IsAvailable = true,
                         },
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Standard.ToString(),
                             Price = 59.90M,
                             IsAvailable = true,
                         },
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Vip.ToString(),
                             Price = 99.90M,
                             IsAvailable = false,
-                            StartDate = new DateTime(2023, 1, 19),
-                            EndDate = new DateTime(2023, 1, 23),
                         },
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Bus.ToString(),
                             Price = 79.90M,
                             IsAvailable = false,
-                            StartDate = new DateTime(2023, 1, 13),
-                            EndDate = new DateTime(2023, 1, 14),
                         },
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Bus.ToString(),
                             Price = 79.90M,
@@ -141,53 +134,45 @@ namespace ParkingHereApi.Seeder
                     Type = "",
                     ContactEmail = "contact@parking-przy-zamku.com",
                     ContactNumber = "123123123",
-                    Spots = new List<ParkingSpot>()
+                    Spots = new List<Spot>()
                     {
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Standard.ToString(),
                             Price = 49.90M,
                             IsAvailable = false,
-                            StartDate = new DateTime(2023, 2, 13),
-                            EndDate = new DateTime(2023, 2, 14),
                         },
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Standard.ToString(),
                             Price = 49.90M,
                             IsAvailable = false,
-                            StartDate = new DateTime(2023, 1, 13),
-                            EndDate = new DateTime(2023, 1, 14),
                         },
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Standard.ToString(),
                             Price = 49.90M,
                             IsAvailable = true,
                         },
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Standard.ToString(),
                             Price = 49.90M,
                             IsAvailable = true,
                         },
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Vip.ToString(),
                             Price = 89.90M,
                             IsAvailable = false,
-                            StartDate = new DateTime(2023, 2, 23),
-                            EndDate = new DateTime(2023, 2, 24),
                         },
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Bus.ToString(),
                             Price = 69.90M,
                             IsAvailable = false,
-                            StartDate = new DateTime(2023, 2, 13),
-                            EndDate = new DateTime(2023, 2, 14),
                         },
-                        new ParkingSpot()
+                        new Spot()
                         {
                             Type = ParkingSpotType.Bus.ToString(),
                             Price = 69.90M,

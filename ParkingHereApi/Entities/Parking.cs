@@ -14,7 +14,8 @@
         public int AddressId { get; set; }
         public virtual Address Address { get; set; }
 
-        public virtual List<ParkingSpot> Spots { get; set; }
+        public virtual List<Spot> Spots { get; set; }
+        public virtual List<Reservation> Reservations { get; set; }
 
     }
 }
