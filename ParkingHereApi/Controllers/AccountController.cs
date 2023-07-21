@@ -18,15 +18,15 @@ namespace ParkingHereApi.Controllers
         [HttpPost("register")]
         public ActionResult RegisterUser([FromBody] RegisterUserDto dto)
         {
-            _accountService.RegisterUser(dto);
+            var id = _accountService.RegisterUser(dto);
 
-            return Ok();
+            return Created($"/api/account/{id}", null);
         }
 
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginDto dto)
         {
-            string token = _accountService.GenerateJwt(dto);
+            var token = _accountService.GenerateJwt(dto);
 
             return Ok(token);
         }

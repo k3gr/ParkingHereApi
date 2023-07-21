@@ -4,7 +4,7 @@ namespace ParkingHereApi.Services
 {
     public interface IAccountService
     {
-        void RegisterUser(RegisterUserDto dto);
-        string GenerateJwt(LoginDto dto);
+        int RegisterUser(RegisterUserDto dto);
+        ClientTokenDto GenerateJwt(LoginDto dto);
     }
 }

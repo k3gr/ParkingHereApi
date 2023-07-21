@@ -26,6 +26,15 @@ namespace ParkingHereApi.Controllers
             return Ok(parkingsDtos);
         }
 
+        [HttpGet("city")]
+        [AllowAnonymous]
+        public ActionResult<IEnumerable<ParkingDto>> GetAllByCity(string city)
+        {
+            var parkingsDtos = _parkingService.GetByCity(city);
+
+            return Ok(parkingsDtos);
+        }
+
         [HttpGet("{id}")]
         [AllowAnonymous]
         public ActionResult<ParkingDto> Get([FromRoute] int id)

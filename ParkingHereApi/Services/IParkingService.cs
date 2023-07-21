@@ -6,6 +6,7 @@ namespace ParkingHereApi.Services
     public interface IParkingService
     {
         IEnumerable<ParkingDto> GetAll();
+        IEnumerable<ParkingDto> GetByCity(string city);
         int Create(CreateParkingDto dto);
         ParkingDto GetById(int id);
         void Delete(int id);
