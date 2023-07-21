@@ -21,10 +21,12 @@ namespace ParkingHereApi.Services
         public List<SpotDto> GetAll(int parkingId)
         {
             var parking = GetParkingById(parkingId);
-            var spotDtos = _mapper.Map<List<SpotDto>>(parking.Spots);
+            var spotDtos = _mapper.Map<List<SpotDto>>(parking.Spots
+                .Where(s => s.IsAvailable));
 
             return spotDtos;
         }
+
         public SpotDto GetById(int parkingId, int spotId)
         {
             var parking = GetParkingById(parkingId);

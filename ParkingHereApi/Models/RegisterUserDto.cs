@@ -14,6 +14,6 @@ namespace ParkingHereApi.Models
         public string ConfirmPassword { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public int RoleId { get; set; } = 2;
-        public Vehicle? Vehicle { get; set; }
+        public VehicleDto? Vehicle { get; set; }
     }
 }

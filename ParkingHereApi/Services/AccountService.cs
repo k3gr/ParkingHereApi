@@ -22,7 +22,7 @@ namespace ParkingHereApi.Services
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
         }
-        public void RegisterUser(RegisterUserDto dto)
+        public int RegisterUser(RegisterUserDto dto)
         {
             var newUser = new User()
             {
@@ -42,9 +42,11 @@ namespace ParkingHereApi.Services
             newUser.PasswordHash = hashedPassword;
             _dbContext.Users.Add(newUser);
             _dbContext.SaveChanges();
+
+            return newUser.Id;
         }
 
-        public string GenerateJwt(LoginDto dto)
+        public ClientTokenDto GenerateJwt(LoginDto dto)
         {
             var user = _dbContext.Users
                 .Include(u => u.Role)
@@ -81,7 +83,9 @@ namespace ParkingHereApi.Services
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            return tokenHandler.WriteToken(token);
+            var clientToken = new ClientTokenDto { FirstName = user.FirstName, LastName = user.LastName, Email = user.Email, Token = tokenHandler.WriteToken(token) };
+
+            return clientToken;
         }
     }
 }

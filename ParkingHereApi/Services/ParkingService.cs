@@ -27,7 +27,7 @@ namespace ParkingHereApi.Services
             _userContextService = userContextService;
         }
 
-        public IEnumerable<ParkingDto> GetAll() 
+        public IEnumerable<ParkingDto> GetAll()
         {
             var parkings = _dbContext
                 .Parkings
@@ -40,6 +40,22 @@ namespace ParkingHereApi.Services
 
             return parkingsDtos;
         }
+
+        public IEnumerable<ParkingDto> GetByCity(string city)
+        {
+            var parkings = _dbContext
+                .Parkings
+                .Include(p => p.Address)
+                .Include(p => p.Spots)
+                .Include(r => r.Reservations)
+                .Where(p => p.Address.City.StartsWith(city))
+                .ToList();
+
+            var parkingsDtos = _mapper.Map<List<ParkingDto>>(parkings);
+
+            return parkingsDtos;
+        }
+
         public ParkingDto GetById(int id)
         {
             var parking = _dbContext
