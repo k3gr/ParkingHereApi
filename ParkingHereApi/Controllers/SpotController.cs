@@ -18,10 +18,10 @@ namespace ParkingHereApi.Controllers
             _spotService = spotService;
         }
 
-        [HttpGet]
-        public ActionResult<List<SpotDto>> GetAll([FromRoute] int parkingId)
+        [HttpPost("getAll")]
+        public ActionResult<List<SpotDto>> GetAll([FromRoute] int parkingId, [FromBody] DateParamsDto dateParamsDto)
         {
-            var result = _spotService.GetAll(parkingId);
+            var result = _spotService.GetAll(parkingId, dateParamsDto);
 
             return Ok(result);
         }

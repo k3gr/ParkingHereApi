@@ -38,22 +38,30 @@ namespace ParkingHereApi.Services
 
             var parkingsDtos = _mapper.Map<List<ParkingDto>>(parkings);
 
+            foreach (var parking in parkingsDtos)
+            {
+                //parking.Prices = GetPrices(parking.Id);
+            }
+
             return parkingsDtos;
         }
 
-        public IEnumerable<ParkingDto> GetByCity(string city)
+        public IEnumerable<ParkingDto> GetByParams(ReservationParamsDto reservationParamsDto)
         {
             var parkings = _dbContext
                 .Parkings
                 .Include(p => p.Address)
                 .Include(p => p.Spots)
                 .Include(r => r.Reservations)
-                .Where(p => p.Address.City.StartsWith(city))
+                .Where(p => p.Address.City.StartsWith(reservationParamsDto.City))
                 .ToList();
 
-            var parkingsDtos = _mapper.Map<List<ParkingDto>>(parkings);
+            var spots = parkings.Select(p => p.Spots).ToList();
 
-            return parkingsDtos;
+            var parkingsDtos = _mapper.Map<List<ParkingDto>>(parkings);
+            var availableParkingsDtos = GetAvailableParkingsWithPrices(parkingsDtos, spots, reservationParamsDto);
+
+            return availableParkingsDtos;
         }
 
         public ParkingDto GetById(int id)
@@ -70,9 +78,10 @@ namespace ParkingHereApi.Services
                 throw new NotFoundException("Parking not found");
             }
 
-            var result = _mapper.Map<ParkingDto>(parking);
+            var parkingDto = _mapper.Map<ParkingDto>(parking);
+            parkingDto.Prices = GetPrices(parking.Spots);
 
-            return result;
+            return parkingDto;
         }
 
         public int Create(CreateParkingDto dto)
@@ -138,6 +147,88 @@ namespace ParkingHereApi.Services
 
             _dbContext.Parkings.Remove(parking);
             _dbContext.SaveChanges();
+        }
+
+        public List<decimal> GetPrices(List<Spot> spots)
+        {
+            var UniqueSpotsByType = spots.GroupBy(s => s.Type).Select(group => group.First());
+
+            var prices = new List<decimal>();
+
+            foreach (var spot in UniqueSpotsByType)
+            {
+                prices.Add(spot.Price);
+            }
+
+            prices.Sort();
+
+            return prices;
+        }
+
+        private bool IsAvailableForReservation(Reservation reservation, ReservationParamsDto reservationParamsDto)
+        {
+            if (reservationParamsDto.StartDate >= reservation.StartDate && reservationParamsDto.StartDate <= reservation.EndDate
+                || reservationParamsDto.EndDate >= reservation.StartDate && reservationParamsDto.EndDate <= reservation.EndDate)
+            {
+                return false;
+            }
+            if (reservationParamsDto.StartDate <= reservation.StartDate && reservationParamsDto.EndDate >= reservation.EndDate)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private bool IsReservationUpToDate(Reservation reservation)
+        {
+            if (reservation.EndDate > DateTime.Today)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsParkingAvailable(List<Spot> spots, ReservationParamsDto reservationParamsDto)
+        {
+            if (spots == null) return false;
+
+            foreach (var spot in spots)
+            {
+                var reservationList = new List<Reservation>();
+
+                if (spot.Reservations != null)
+                {
+                    foreach (var reservation in spot.Reservations)
+                    {
+                        if (IsReservationUpToDate(reservation))
+                        {
+                            if (IsAvailableForReservation(reservation, reservationParamsDto))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        private IEnumerable<ParkingDto> GetAvailableParkingsWithPrices(List<ParkingDto> parkingsDtos, List<List<Spot>> spots, ReservationParamsDto reservationParamsDto)
+        {
+            var availableParkingsDtos = new List<ParkingDto>();
+
+            for (int i = 0; i < parkingsDtos.Count; i++)
+            {
+                if (IsParkingAvailable(spots[i], reservationParamsDto))
+                {
+                    parkingsDtos[i].Prices = GetPrices(spots[i]);
+                    availableParkingsDtos.Add(parkingsDtos[i]);
+                }
+            }
+
+            return availableParkingsDtos;
         }
     }
 }

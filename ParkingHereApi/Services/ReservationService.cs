@@ -17,17 +17,19 @@ namespace ParkingHereApi.Services
         private readonly ILogger<ParkingService> _logger;
         private readonly IAuthorizationService _authorizationService;
         private readonly IUserContextService _userContextService;
+        private readonly ISpotService _spotService;
 
-        public ReservationService(ParkingDbContext dbContext, IMapper mapper, ILogger<ParkingService> logger)
+        public ReservationService(ParkingDbContext dbContext, IMapper mapper, ILogger<ParkingService> logger, ISpotService spotService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _logger = logger;
+            _spotService = spotService;
         }
 
         public IEnumerable<ReservationDto> GetAll(int parkingId, int spotId)
         {
-            var spot = GetSpotById(parkingId, spotId);
+            var spot = GetById(parkingId, spotId);
 
             var reservations = _dbContext
                 .Reservations
@@ -38,7 +40,7 @@ namespace ParkingHereApi.Services
 
             return reservationsDtos;
         }
-        private Spot GetSpotById(int parkingId, int spotId)
+        private Spot GetById(int parkingId, int spotId)
         {
             var parking = _dbContext
                 .Parkings
@@ -62,11 +64,10 @@ namespace ParkingHereApi.Services
             return spot;
         }
 
-        public int Create(int parkingId, int spotId, CreateReservationDto dto)
+        public Reservation Create(int parkingId, CreateReservationDto createReservationDto)
         {
-            var spot = GetSpotById(parkingId, spotId);
-
-            var reservationEntity = _mapper.Map<Reservation>(dto);
+            var spotId = _spotService.GetFirstAvailableSpotByType(parkingId, createReservationDto);
+            var reservationEntity = _mapper.Map<Reservation>(createReservationDto);
 
             reservationEntity.ParkingId = parkingId;
             reservationEntity.SpotId = spotId;
@@ -74,7 +75,7 @@ namespace ParkingHereApi.Services
             _dbContext.Reservations.Add(reservationEntity);
             _dbContext.SaveChanges();
 
-            return reservationEntity.Id;
+            return reservationEntity;
         }
 
         public void Delete(int id)

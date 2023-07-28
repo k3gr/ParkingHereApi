@@ -26,11 +26,11 @@ namespace ParkingHereApi.Controllers
             return Ok(parkingsDtos);
         }
 
-        [HttpGet("city")]
+        [HttpPost("city")]
         [AllowAnonymous]
-        public ActionResult<IEnumerable<ParkingDto>> GetAllByCity(string city)
+        public ActionResult<IEnumerable<ParkingDto>> GetByParams(ReservationParamsDto reservationParamsDto)
         {
-            var parkingsDtos = _parkingService.GetByCity(city);
+            var parkingsDtos = _parkingService.GetByParams(reservationParamsDto);
 
             return Ok(parkingsDtos);
         }
@@ -45,6 +45,7 @@ namespace ParkingHereApi.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public ActionResult CreateParking([FromBody] CreateParkingDto dto)
         {
             var id = _parkingService.Create(dto);

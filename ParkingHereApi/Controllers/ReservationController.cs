@@ -5,7 +5,7 @@ using ParkingHereApi.Services;
 
 namespace ParkingHereApi.Controllers
 {
-    [Route("api/parking/{parkingId}/spot/{spotId}/reservation")]
+    [Route("api/parking/{parkingId}/spot/")]
     [ApiController]
     public class ReservationController : ControllerBase
     {
@@ -16,7 +16,7 @@ namespace ParkingHereApi.Controllers
             _reservationService = reservationService;
         }
 
-        [HttpGet]
+        [HttpGet("{spotId}/reservation")]
         [AllowAnonymous]
         public ActionResult<IEnumerable<ReservationDto>> GetAll([FromRoute] int parkingId, [FromRoute] int spotId)
         {
@@ -24,13 +24,14 @@ namespace ParkingHereApi.Controllers
 
             return Ok(reservationDtos);
         }
-        [HttpPost]
-        [AllowAnonymous]
-        public ActionResult Create([FromRoute] int parkingId, [FromRoute] int spotId, [FromBody] CreateReservationDto dto)
-        {
-            var newReservationId = _reservationService.Create(parkingId, spotId, dto);
 
-            return Created($"api/parking/{parkingId}/spot/{spotId}/reservation/{newReservationId}", null);
+        [HttpPost("reservation")]
+        [AllowAnonymous]
+        public ActionResult Create([FromRoute] int parkingId, [FromBody] CreateReservationDto createReservationDto)
+        {
+            var newReservation = _reservationService.Create(parkingId, createReservationDto);
+
+            return Created($"api/parking/{parkingId}/spot/{newReservation.SpotId}/reservation/{newReservation.Id}", null);
         }
     }
 }

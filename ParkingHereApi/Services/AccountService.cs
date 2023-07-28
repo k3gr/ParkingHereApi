@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ParkingHereApi.Entities;
@@ -13,12 +14,14 @@ namespace ParkingHereApi.Services
     public class AccountService : IAccountService
     {
         private readonly ParkingDbContext _dbContext;
+        private readonly IMapper _mapper;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
 
-        public AccountService(ParkingDbContext dbContext, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings)
+        public AccountService(ParkingDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
         }
@@ -44,6 +47,23 @@ namespace ParkingHereApi.Services
             _dbContext.SaveChanges();
 
             return newUser.Id;
+        }
+
+        public UserDto GetById(int id)
+        {
+            var user = _dbContext
+                .Users
+                .Include(v => v.Vehicle)
+                .FirstOrDefault(u => u.Id == id);
+
+            if (user is null)
+            {
+                throw new NotFoundException("User not found");
+            }
+
+            var userDto = _mapper.Map<UserDto>(user);
+
+            return userDto;
         }
 
         public ClientTokenDto GenerateJwt(LoginDto dto)
@@ -83,7 +103,7 @@ namespace ParkingHereApi.Services
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var clientToken = new ClientTokenDto { FirstName = user.FirstName, LastName = user.LastName, Email = user.Email, Token = tokenHandler.WriteToken(token) };
+            var clientToken = new ClientTokenDto {Id = user.Id, FirstName = user.FirstName, LastName = user.LastName, Email = user.Email, Token = tokenHandler.WriteToken(token) };
 
             return clientToken;
         }

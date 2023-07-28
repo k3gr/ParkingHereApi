@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ParkingHereApi.Entities;
 using ParkingHereApi.Models;
 
 namespace ParkingHereApi.Services
 {
     public interface IReservationService
     {
-        int Create(int parkingId, int spotId, CreateReservationDto dto);
+        Reservation Create(int parkingId, CreateReservationDto createReservationDto);
         void Delete(int id);
         IEnumerable<ReservationDto> GetAll(int parkingId, int spotId);
     }

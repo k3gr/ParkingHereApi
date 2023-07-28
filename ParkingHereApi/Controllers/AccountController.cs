@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ParkingHereApi.Entities;
 using ParkingHereApi.Models;
 using ParkingHereApi.Services;
 
@@ -13,6 +15,14 @@ namespace ParkingHereApi.Controllers
         public AccountController(IAccountService accountService)
         {
             _accountService = accountService;
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult Get([FromRoute] int id)
+        {
+            var user = _accountService.GetById(id);
+
+            return Ok(user);
         }
 
         [HttpPost("register")]

@@ -18,13 +18,32 @@ namespace ParkingHereApi.Services
             _mapper = mapper;
             _logger = logger;
         }
-        public List<SpotDto> GetAll(int parkingId)
+
+        public IEnumerable<SpotDto> GetAll(int parkingId, DateParamsDto dateParamsDto)
         {
             var parking = GetParkingById(parkingId);
-            var spotDtos = _mapper.Map<List<SpotDto>>(parking.Spots
-                .Where(s => s.IsAvailable));
+
+            var spots = GetAvailableSpots(parking.Spots, dateParamsDto.StartDate, dateParamsDto.EndDate);
+            var spotDtos = _mapper.Map<List<SpotDto>>(spots);
 
             return spotDtos;
+        }
+
+        public int GetFirstAvailableSpotByType(int parkingId, CreateReservationDto createReservationDto)
+        {
+            var parking = GetParkingById(parkingId);
+
+            var spots = GetAvailableSpots(parking.Spots, createReservationDto.StartDate, createReservationDto.EndDate);
+            var spot = spots.FirstOrDefault(s => s.IsAvailable && s.Type.Equals(createReservationDto.Type));
+
+            if (spot is null || spot.ParkingId != parkingId)
+            {
+                throw new NotFoundException("Spot not found");
+            }
+
+            var spotDto = _mapper.Map<SpotDto>(spot);
+
+            return spotDto.Id;
         }
 
         public SpotDto GetById(int parkingId, int spotId)
@@ -99,6 +118,65 @@ namespace ParkingHereApi.Services
             }
 
             return parking;
+        }
+
+        private bool IsAvailableForReservation(Spot spot, DateTime startDate, DateTime endDate)
+        {
+            if (spot.Reservations != null)
+            {
+                foreach (var reservation in spot.Reservations)
+                {
+                    if (startDate >= reservation.StartDate && startDate <= reservation.EndDate
+                        || endDate >= reservation.StartDate && endDate <= reservation.EndDate)
+                    {
+                        return false;
+                    }
+                    if (startDate <= reservation.StartDate && endDate >= reservation.EndDate)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private bool IsReservationUpToDate(DateTime endDate)
+        {
+            if (endDate > DateTime.Today)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private List<Spot> GetAvailableSpots(List<Spot> spots, DateTime startDate, DateTime endDate)
+        {
+            var spotList = new List<Spot>();
+            if (spots == null) return spotList;
+
+            foreach (var spot in spots)
+            {
+                var reservationList = new List<Reservation>();
+
+                if (spot.Reservations != null)
+                {
+                    foreach (var reservation in spot.Reservations)
+                    {
+                        if (IsReservationUpToDate(reservation.EndDate))
+                        {
+                            reservationList.Add(reservation);
+                        }
+                    }
+                }
+                spot.Reservations = reservationList;
+                if (IsAvailableForReservation(spot, startDate, endDate))
+                {
+                    spot.IsAvailable = IsAvailableForReservation(spot, startDate, endDate);
+                    spotList.Add(spot);
+                }
+            }
+            return spotList;
         }
     }
 }
