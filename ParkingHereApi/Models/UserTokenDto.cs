@@ -1,6 +1,6 @@
 ﻿namespace ParkingHereApi.Models
 {
-    public class ClientTokenDto
+    public class UserTokenDto
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
