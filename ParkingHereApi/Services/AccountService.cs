@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using ParkingHereApi.Authorization;
 using ParkingHereApi.Entities;
+using ParkingHereApi.Enums;
 using ParkingHereApi.Exceptions;
 using ParkingHereApi.Models;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,13 +21,18 @@ namespace ParkingHereApi.Services
         private readonly IMapper _mapper;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IUserContextService _userContextService;
 
-        public AccountService(ParkingDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings)
+        public AccountService(ParkingDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher,
+            AuthenticationSettings authenticationSettings, IAuthorizationService authorizationService, IUserContextService userContextService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
+            _authorizationService = authorizationService;
+            _userContextService = userContextService;
         }
         public int RegisterUser(RegisterUserDto dto)
         {
@@ -36,7 +45,8 @@ namespace ParkingHereApi.Services
                 RoleId = dto.RoleId,
                 Vehicle = new Vehicle()
                 {
-                    Name = dto.Vehicle.Name,
+                    Brand = dto.Vehicle.Brand,
+                    Model = dto.Vehicle.Model,
                     RegistrationPlate = dto.Vehicle.RegistrationPlate
                 }
             };
@@ -66,7 +76,34 @@ namespace ParkingHereApi.Services
             return userDto;
         }
 
-        public ClientTokenDto GenerateJwt(LoginDto dto)
+        public void Update(int id, UpdateUserDto dto)
+        {
+            var user = _dbContext
+                .Users
+                .Include(v => v.Vehicle)
+                .FirstOrDefault(u => u.Id == id);
+
+            if (user is null)
+            {
+                throw new NotFoundException("User not found");
+            }
+
+            //var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, user,
+            //     new ResourceOperationRequirement(ResourceOperation.Update)).Result;
+
+            //if (!authorizationResult.Succeeded)
+            //{
+            //    throw new ForbidException();
+            //}
+
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+            user.Email = dto.Email;
+
+            _dbContext.SaveChanges();
+        }
+
+        public UserTokenDto GenerateJwt(LoginDto dto)
         {
             var user = _dbContext.Users
                 .Include(u => u.Role)
@@ -103,9 +140,9 @@ namespace ParkingHereApi.Services
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var clientToken = new ClientTokenDto {Id = user.Id, FirstName = user.FirstName, LastName = user.LastName, Email = user.Email, Token = tokenHandler.WriteToken(token) };
+            var userToken = new UserTokenDto { Id = user.Id, FirstName = user.FirstName, LastName = user.LastName, Email = user.Email, Token = tokenHandler.WriteToken(token) };
 
-            return clientToken;
+            return userToken;
         }
     }
 }

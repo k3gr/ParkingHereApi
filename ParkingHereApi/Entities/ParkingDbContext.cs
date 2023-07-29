@@ -28,7 +28,11 @@ namespace ParkingHereApi.Entities
                 .IsRequired();
 
             modelBuilder.Entity<Vehicle>()
-                .Property(v => v.Name)
+                .Property(v => v.Brand)
+                .IsRequired();
+
+            modelBuilder.Entity<Vehicle>()
+                .Property(v => v.Model)
                 .IsRequired();
 
             modelBuilder.Entity<Vehicle>()

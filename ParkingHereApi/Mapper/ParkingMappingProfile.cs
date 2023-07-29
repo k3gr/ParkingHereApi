@@ -24,8 +24,11 @@ namespace ParkingHereApi.Mapper
             CreateMap<Reservation, ReservationDto>();
             CreateMap<CreateReservationDto, Reservation>();
             CreateMap<User, UserDto>()
-                .ForMember(u => u.VehicleName, c => c.MapFrom(v => v.Vehicle.Name))
+                .ForMember(u => u.VehicleBrand, c => c.MapFrom(v => v.Vehicle.Brand))
+                .ForMember(u => u.VehicleModel, c => c.MapFrom(v => v.Vehicle.Model))
                 .ForMember(u => u.VehicleRegistrationPlate, c => c.MapFrom(v => v.Vehicle.RegistrationPlate));
+            CreateMap<Vehicle, VehicleDto>();
+            CreateMap<VehicleDto, Vehicle>();
         }
     }
 }

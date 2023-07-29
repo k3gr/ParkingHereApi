@@ -25,6 +25,14 @@ namespace ParkingHereApi.Controllers
             return Ok(user);
         }
 
+        [HttpPut("{id}")]
+        public ActionResult Update([FromRoute] int id, [FromBody] UpdateUserDto dto)
+        {
+            _accountService.Update(id, dto);
+
+            return Ok();
+        }
+
         [HttpPost("register")]
         public ActionResult RegisterUser([FromBody] RegisterUserDto dto)
         {
