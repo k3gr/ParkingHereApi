@@ -10,6 +10,7 @@ using ParkingHereApi.Enums;
 using ParkingHereApi.Exceptions;
 using ParkingHereApi.Models;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 
@@ -80,21 +81,12 @@ namespace ParkingHereApi.Services
         {
             var user = _dbContext
                 .Users
-                .Include(v => v.Vehicle)
                 .FirstOrDefault(u => u.Id == id);
 
             if (user is null)
             {
                 throw new NotFoundException("User not found");
             }
-
-            //var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, user,
-            //     new ResourceOperationRequirement(ResourceOperation.Update)).Result;
-
-            //if (!authorizationResult.Succeeded)
-            //{
-            //    throw new ForbidException();
-            //}
 
             user.FirstName = dto.FirstName;
             user.LastName = dto.LastName;

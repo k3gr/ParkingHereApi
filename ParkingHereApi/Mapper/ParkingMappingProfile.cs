@@ -21,7 +21,10 @@ namespace ParkingHereApi.Mapper
                     { City = dto.City, PostalCode = dto.PostalCode, Street = dto.Street }));
 
             CreateMap<CreateSpotDto, Spot>();
-            CreateMap<Reservation, ReservationDto>();
+            CreateMap<Reservation, ReservationDto>()
+                .ForMember(r => r.ParkingName, c => c.MapFrom(p => p.Parking.Name))
+                .ForMember(r => r.VehicleDetails, c => c.MapFrom(v => $"{v.Vehicle.RegistrationPlate} {v.Vehicle.Brand} {v.Vehicle.Model}"))
+                .ForMember(r => r.ParkingAddress, c => c.MapFrom(p => $"{p.Parking.Address.Street} {p.Parking.Address.PostalCode} {p.Parking.Address.City}"));
             CreateMap<CreateReservationDto, Reservation>();
             CreateMap<User, UserDto>()
                 .ForMember(u => u.VehicleBrand, c => c.MapFrom(v => v.Vehicle.Brand))

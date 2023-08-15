@@ -84,6 +84,19 @@ namespace ParkingHereApi.Services
             return parkingDto;
         }
 
+        public IEnumerable<ParkingDto> GetMyParkings()
+        {
+            var parkings = _dbContext
+                .Parkings
+                .Include(p => p.Address)
+                .Where(p => p.CreatedById == _userContextService.GetUserId)
+                .ToList();
+
+            var parkingsDtos = _mapper.Map<List<ParkingDto>>(parkings);
+
+            return parkingsDtos;
+        }
+
         public int Create(CreateParkingDto dto)
         {
             var parking = _mapper.Map<Parking>(dto);
@@ -100,6 +113,7 @@ namespace ParkingHereApi.Services
         {
             var parking = _dbContext
                 .Parkings
+                .Include (p => p.Address)
                 .FirstOrDefault(p => p.Id == id);
 
             if (parking is null)
@@ -116,6 +130,9 @@ namespace ParkingHereApi.Services
             }
 
             parking.Name = dto.Name;
+            parking.Address.Street = dto.Street;
+            parking.Address.City = dto.City;
+            parking.Address.PostalCode = dto.PostalCode;
             parking.Description = dto.Description;
             parking.Type = dto.Type;
             parking.ContactNumber = dto.ContactNumber;

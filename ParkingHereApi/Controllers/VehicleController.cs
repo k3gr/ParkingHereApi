@@ -4,7 +4,7 @@ using ParkingHereApi.Services;
 
 namespace ParkingHereApi.Controllers
 {
-    [Route("api/vehicle/{userId}/")]
+    [Route("api/vehicle")]
     [ApiController]
     public class VehicleController : ControllerBase
     {
@@ -15,18 +15,26 @@ namespace ParkingHereApi.Controllers
             _vehicleService = vehicleService;
         }
 
-        [HttpGet]
-        public ActionResult Get([FromRoute] int userId)
+        [HttpGet("{id}")]
+        public ActionResult Get([FromRoute] int id)
         {
-            var user = _vehicleService.GetById(userId);
+            var user = _vehicleService.GetById(id);
 
             return Ok(user);
         }
 
-        [HttpPut]
-        public ActionResult Update([FromRoute] int userId, [FromBody] VehicleDto dto)
+        [HttpGet("my-vehicle")]
+        public ActionResult Get()
         {
-            _vehicleService.Update(userId, dto);
+            var user = _vehicleService.GetMyVehicle();
+
+            return Ok(user);
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult Update([FromRoute] int id, [FromBody] VehicleDto dto)
+        {
+            _vehicleService.Update(id, dto);
 
             return Ok();
         }

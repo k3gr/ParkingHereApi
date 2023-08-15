@@ -9,5 +9,10 @@ namespace ParkingHereApi.Services
         Reservation Create(int parkingId, CreateReservationDto createReservationDto);
         void Delete(int id);
         IEnumerable<ReservationDto> GetAll(int parkingId, int spotId);
+        IEnumerable<ReservationDto> GetByParkingId(int parkingId);
+        IEnumerable<ReservationDto> GetMyReservation();
+        IEnumerable<ReservationDto> GetMyPastReservation();
+        IEnumerable<ReservationDto> GetAllParkingsCurrentReservation();
+        IEnumerable<ReservationDto> GetAllParkingsPastReservation();
     }
 }

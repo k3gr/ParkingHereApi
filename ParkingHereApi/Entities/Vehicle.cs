@@ -6,5 +6,6 @@
         public string Brand { get; set; }
         public string Model { get; set; }
         public string RegistrationPlate { get; set; }
+        public int? CreatedById { get; set; }
     }
 }
