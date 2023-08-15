@@ -6,5 +6,7 @@ namespace ParkingHereApi.Services
     {
         void Update(int id, VehicleDto dto);
         VehicleDto GetById(int id);
+        VehicleDto GetMyVehicle();
+
     }
 }

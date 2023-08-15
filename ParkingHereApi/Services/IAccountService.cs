@@ -1,4 +1,5 @@
-﻿using ParkingHereApi.Models;
+﻿using ParkingHereApi.Entities;
+using ParkingHereApi.Models;
 
 namespace ParkingHereApi.Services
 {

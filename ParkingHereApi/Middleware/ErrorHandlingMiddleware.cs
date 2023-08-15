@@ -18,7 +18,7 @@ namespace ParkingHereApi.Middleware
             }
             catch (BadRequestException badRequestException)
             {
-                context.Response.StatusCode = 400;
+                context.Response.StatusCode = 401;
                 await context.Response.WriteAsync(badRequestException.Message);
             }
             catch (NotFoundException notFoundException)

@@ -5,7 +5,7 @@ using ParkingHereApi.Services;
 
 namespace ParkingHereApi.Controllers
 {
-    [Route("api/parking/{parkingId}/spot/")]
+    [Route("api/reservation/")]
     [ApiController]
     public class ReservationController : ControllerBase
     {
@@ -16,7 +16,7 @@ namespace ParkingHereApi.Controllers
             _reservationService = reservationService;
         }
 
-        [HttpGet("{spotId}/reservation")]
+        [HttpGet("{parkingId}/spot/{spotId}/reservation")]
         [AllowAnonymous]
         public ActionResult<IEnumerable<ReservationDto>> GetAll([FromRoute] int parkingId, [FromRoute] int spotId)
         {
@@ -25,13 +25,58 @@ namespace ParkingHereApi.Controllers
             return Ok(reservationDtos);
         }
 
-        [HttpPost("reservation")]
+        [HttpGet("{parkingId}")]
+        [AllowAnonymous]
+        public ActionResult<IEnumerable<ReservationDto>> GetByParkingId([FromRoute] int parkingId)
+        {
+            var reservationDtos = _reservationService.GetByParkingId(parkingId);
+
+            return Ok(reservationDtos);
+        }
+
+        [HttpPost("{parkingId}/spot/reservation")]
         [AllowAnonymous]
         public ActionResult Create([FromRoute] int parkingId, [FromBody] CreateReservationDto createReservationDto)
         {
             var newReservation = _reservationService.Create(parkingId, createReservationDto);
 
             return Created($"api/parking/{parkingId}/spot/{newReservation.SpotId}/reservation/{newReservation.Id}", null);
+        }
+
+        [HttpGet("my-reservations")]
+        [AllowAnonymous]
+        public ActionResult<IEnumerable<ReservationDto>> GetMyReservation()
+        {
+            var reservationDtos = _reservationService.GetMyReservation();
+
+            return Ok(reservationDtos);
+        }
+
+        [HttpGet("my-past-reservations")]
+        [AllowAnonymous]
+        public ActionResult<IEnumerable<ReservationDto>> GetMyPastReservation()
+        {
+            var reservationDtos = _reservationService.GetMyPastReservation();
+
+            return Ok(reservationDtos);
+        }
+        
+        [HttpGet("all-parkings-reservations")]
+        [AllowAnonymous]
+        public ActionResult<IEnumerable<ReservationDto>> GetAllParkingsCurrentReservation()
+        {
+            var reservationDtos = _reservationService.GetAllParkingsCurrentReservation();
+
+            return Ok(reservationDtos);
+        }
+        
+        [HttpGet("all-parkings-past-reservations")]
+        [AllowAnonymous]
+        public ActionResult<IEnumerable<ReservationDto>> GetAllParkingsPastReservation()
+        {
+            var reservationDtos = _reservationService.GetAllParkingsPastReservation();
+
+            return Ok(reservationDtos);
         }
     }
 }
