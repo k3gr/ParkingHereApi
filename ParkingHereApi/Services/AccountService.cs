@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ParkingHereApi.Authorization;
+using ParkingHereApi.Common.Models;
 using ParkingHereApi.Entities;
 using ParkingHereApi.Enums;
 using ParkingHereApi.Exceptions;
@@ -12,6 +13,7 @@ using ParkingHereApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace ParkingHereApi.Services
@@ -24,9 +26,10 @@ namespace ParkingHereApi.Services
         private readonly AuthenticationSettings _authenticationSettings;
         private readonly IAuthorizationService _authorizationService;
         private readonly IUserContextService _userContextService;
+        private readonly IEmailService _emailService;
 
         public AccountService(ParkingDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher,
-            AuthenticationSettings authenticationSettings, IAuthorizationService authorizationService, IUserContextService userContextService)
+            AuthenticationSettings authenticationSettings, IAuthorizationService authorizationService, IUserContextService userContextService, IEmailService emailService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
@@ -34,6 +37,7 @@ namespace ParkingHereApi.Services
             _authenticationSettings = authenticationSettings;
             _authorizationService = authorizationService;
             _userContextService = userContextService;
+            _emailService = emailService;
         }
         public int RegisterUser(RegisterUserDto dto)
         {
@@ -49,13 +53,30 @@ namespace ParkingHereApi.Services
                     Brand = dto.Vehicle.Brand,
                     Model = dto.Vehicle.Model,
                     RegistrationPlate = dto.Vehicle.RegistrationPlate
-                }
+                },
+                ActivationToken = CreateRandomToken(),
             };
             var hashedPassword = _passwordHasher.HashPassword(newUser, dto.Password);
 
             newUser.PasswordHash = hashedPassword;
             _dbContext.Users.Add(newUser);
             _dbContext.SaveChanges();
+
+            newUser.Vehicle.CreatedById = newUser.Id;
+            _dbContext.SaveChanges();
+
+            var createEmail = new CreateEmail
+            {
+                EmailSubject = "Aktywuj konto",
+                EmailTo = newUser.Email,
+                EmailBody = $"Witaj {newUser.FirstName},\r\nkliknij w poniższy link aby aktywować konto: \r\nhttp://127.0.0.1:5173/activation?token={newUser.ActivationToken}",
+                EmailToName = $"{newUser.FirstName} {newUser.LastName}"
+            };
+
+            if (!_emailService.SendMail(createEmail))
+            {
+                throw new BadRequestException("Email not delivered");
+            }
 
             return newUser.Id;
         }
@@ -95,7 +116,7 @@ namespace ParkingHereApi.Services
             _dbContext.SaveChanges();
         }
 
-        public UserTokenDto GenerateJwt(LoginDto dto)
+        public UserTokenDto Login(LoginDto dto)
         {
             var user = _dbContext.Users
                 .Include(u => u.Role)
@@ -113,6 +134,11 @@ namespace ParkingHereApi.Services
                 throw new BadRequestException("Invalid username or password");
             }
 
+            if (user.ActivationDate == null)
+            {
+                throw new BadRequestException("User not verified");
+            }
+
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -122,7 +148,7 @@ namespace ParkingHereApi.Services
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.JwtKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddDays(_authenticationSettings.JwtExpireDays);
+            var expires = DateTime.Now.AddMinutes(_authenticationSettings.JwtExpireMinutes);
 
             var token = new JwtSecurityToken(_authenticationSettings.JwtIssuer,
                 _authenticationSettings.JwtIssuer,
@@ -132,9 +158,92 @@ namespace ParkingHereApi.Services
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var userToken = new UserTokenDto { Id = user.Id, FirstName = user.FirstName, LastName = user.LastName, Email = user.Email, Token = tokenHandler.WriteToken(token) };
+            var userToken = new UserTokenDto { Id = user.Id, FirstName = user.FirstName, LastName = user.LastName, Email = user.Email, Token = tokenHandler.WriteToken(token), Expires = expires };
 
             return userToken;
+        }
+
+        public void Activation(string token)
+        {
+            var user = _dbContext
+                .Users
+                .FirstOrDefault(u => u.ActivationToken == token);
+
+            if (user == null || user.ActivationDate != null)
+            {
+                throw new BadRequestException("Invalid token");
+            }
+
+            user.ActivationDate = DateTime.Now;
+            _dbContext.SaveChanges();
+        }
+
+        public void VerifyPasswordResetToken(string token)
+        {
+            var user = _dbContext
+                .Users
+                .FirstOrDefault(u => u.PasswordResetToken == token);
+
+            if (user == null)
+            {
+                throw new BadRequestException("Invalid token");
+            }
+
+            _dbContext.SaveChanges();
+        }
+
+        public void ForgotPassword(UserResetPasswordStep1Dto userResetPasswordStep1Dto)
+        {
+            var user = _dbContext
+                .Users
+                .FirstOrDefault(u => u.Email == userResetPasswordStep1Dto.Email);
+
+            if (user == null)
+            {
+                throw new BadRequestException("User not found");
+            }
+
+            user.PasswordResetToken = CreateRandomToken();
+            user.ResetTokenExpires = DateTime.Now.AddDays(1);
+
+            _dbContext.SaveChanges();
+
+            var createEmail = new CreateEmail
+            {
+                EmailSubject = "Przywróć hasło",
+                EmailTo = user.Email,
+                EmailBody = $"Witaj {user.FirstName},\r\nkliknij w poniższy link aby przywrócić hasło: \r\nhttp://127.0.0.1:5173/reset-password?token={user.PasswordResetToken}",
+                EmailToName = $"{user.FirstName} {user.LastName}"
+            };
+
+            if (!_emailService.SendMail(createEmail))
+            {
+                throw new BadRequestException("Email not delivered");
+            }
+        }
+
+        public void ResetPassword(string token, UserResetPasswordStep2Dto userResetPasswordDto)
+        {
+            var user = _dbContext
+                .Users
+                .FirstOrDefault(u => u.PasswordResetToken == token);
+
+            if (user == null || user.ResetTokenExpires < DateTime.Now)
+            {
+                throw new BadRequestException("Invalid token");
+            }
+            var hashedPassword = _passwordHasher.HashPassword(user, userResetPasswordDto.Password);
+
+            user.PasswordHash = hashedPassword;
+            user.PasswordResetToken = null;
+            user.ResetTokenExpires = null;
+
+            _dbContext.SaveChanges();
+        }
+
+        private string CreateRandomToken()
+        {
+            return Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
         }
     }
 }

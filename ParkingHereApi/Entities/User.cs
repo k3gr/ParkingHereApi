@@ -14,5 +14,10 @@ namespace ParkingHereApi.Entities
         public int RoleId { get; set; }
         public virtual Role Role { get; set; }
         public virtual Vehicle Vehicle { get; set; }
+
+        public string? ActivationToken { get; set; }
+        public DateTime? ActivationDate { get; set; }
+        public string? PasswordResetToken { get; set; }
+        public DateTime? ResetTokenExpires { get; set; }
     }
 }
