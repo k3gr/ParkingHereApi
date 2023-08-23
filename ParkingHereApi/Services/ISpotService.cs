@@ -4,7 +4,7 @@ namespace ParkingHereApi.Services
 {
     public interface ISpotService
     {
-        int Create(int parkingId, CreateSpotDto dto);
+        void Create(int parkingId, CreateSpotDto dto);
         SpotDto GetById(int parkingId, int spotId);
         IEnumerable<SpotDto> GetAll(int parkingId, DateParamsDto dateParamsDto);
         int GetFirstAvailableSpotByType(int parkingId, CreateReservationDto createReservationDto);

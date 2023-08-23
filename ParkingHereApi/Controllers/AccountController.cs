@@ -44,9 +44,41 @@ namespace ParkingHereApi.Controllers
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginDto dto)
         {
-            var token = _accountService.GenerateJwt(dto);
+            var token = _accountService.Login(dto);
 
             return Ok(token);
+        }
+
+        [HttpPost("activation")]
+        public ActionResult Activation([FromQuery] string token)
+        {
+            _accountService.Activation(token);
+
+            return Ok();
+        }
+
+        [HttpPost("verify-password-token")]
+        public ActionResult VerifyPasswordResetToken([FromQuery] string token)
+        {
+            _accountService.VerifyPasswordResetToken(token);
+
+            return Ok();
+        }
+
+        [HttpPost("forgot-password")]
+        public ActionResult ForgotPassword([FromBody] UserResetPasswordStep1Dto userResetPasswordStep1Dto)
+        {
+            _accountService.ForgotPassword(userResetPasswordStep1Dto);
+
+            return Ok();
+        }
+
+        [HttpPost("reset-password")]
+        public ActionResult ResetPassword([FromQuery] string token, [FromBody] UserResetPasswordStep2Dto userResetPasswordStep2Dto)
+        {
+            _accountService.ResetPassword(token, userResetPasswordStep2Dto);
+
+            return Ok();
         }
     }
 }

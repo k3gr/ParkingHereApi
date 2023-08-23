@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using NLog.Web;
 using ParkingHereApi;
 using ParkingHereApi.Authorization;
+using ParkingHereApi.Common.Models;
 using ParkingHereApi.Entities;
 using ParkingHereApi.Middleware;
 using ParkingHereApi.Models;
@@ -29,6 +30,7 @@ builder.Host.UseNLog();
 var authenticationSettings = new AuthenticationSettings();
 
 builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 builder.Services.AddSingleton(authenticationSettings);
 builder.Services.AddAuthentication(option =>
@@ -78,6 +80,7 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSwaggerGen();
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 var app = builder.Build();
 

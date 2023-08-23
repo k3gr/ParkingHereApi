@@ -7,7 +7,7 @@ namespace ParkingHereApi.Controllers
 {
     [Route("api/parking")]
     [ApiController]
-    [Authorize(Roles = "Admin,Owner")]
+    //[Authorize(Roles = "Admin,Owner")]
     public class ParkingHereController : ControllerBase
     {
         private readonly IParkingService _parkingService;
@@ -54,7 +54,6 @@ namespace ParkingHereApi.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
         public ActionResult CreateParking([FromBody] CreateParkingDto dto)
         {
             var id = _parkingService.Create(dto);

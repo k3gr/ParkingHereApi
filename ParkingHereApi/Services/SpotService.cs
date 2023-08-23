@@ -65,7 +65,7 @@ namespace ParkingHereApi.Services
             return spotDtos;
         }
 
-        public int Create(int parkingId, CreateSpotDto dto)
+        public void Create(int parkingId, CreateSpotDto dto)
         {
             var parking = GetParkingById(parkingId);
 
@@ -75,8 +75,6 @@ namespace ParkingHereApi.Services
 
             _dbContext.Spots.Add(spotEntity);
             _dbContext.SaveChanges();
-
-            return spotEntity.Id;
         }
 
         public void Delete(int parkingId, int spotId)

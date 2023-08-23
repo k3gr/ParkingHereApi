@@ -92,7 +92,6 @@ namespace ParkingHereApi.Services
                 .Include(r => r.Parking.Address)
                 .Include(r => r.Vehicle)
                 .Where(r => r.ParkingId == parkingId)
-                //.Where(r => r.EndDate >= DateTime.Today)
                 .ToList();
 
             var reservationsDtos = _mapper.Map<List<ReservationDto>>(reservations);
@@ -144,6 +143,11 @@ namespace ParkingHereApi.Services
             if (vehicle is null)
             {
                 throw new NotFoundException("Vehicle not found");
+            }
+
+            if (reservation.StartDate < DateTime.Today)
+            {
+                throw new BadRequestException("Start date cannot be past");
             }
 
             reservation.ParkingId = parkingId;

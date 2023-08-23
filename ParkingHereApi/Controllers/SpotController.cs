@@ -54,9 +54,9 @@ namespace ParkingHereApi.Controllers
         [HttpPost]
         public ActionResult Create([FromRoute] int parkingId, [FromBody] CreateSpotDto dto)
         {
-            var newSpotId = _spotService.Create(parkingId, dto);
+            _spotService.Create(parkingId, dto);
 
-            return Created($"api/parking/{parkingId}/spot/{newSpotId}", null);
+            return Created($"api/parking/{parkingId}/spot", null);
         }
     }
 }
