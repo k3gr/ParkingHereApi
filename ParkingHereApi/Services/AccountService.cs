@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ParkingHereApi.Authorization;
 using ParkingHereApi.Common.Models;
@@ -27,9 +28,10 @@ namespace ParkingHereApi.Services
         private readonly IAuthorizationService _authorizationService;
         private readonly IUserContextService _userContextService;
         private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
 
         public AccountService(ParkingDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher,
-            AuthenticationSettings authenticationSettings, IAuthorizationService authorizationService, IUserContextService userContextService, IEmailService emailService)
+            AuthenticationSettings authenticationSettings, IAuthorizationService authorizationService, IUserContextService userContextService, IEmailService emailService, IConfiguration configuration)
         {
             _dbContext = dbContext;
             _mapper = mapper;
@@ -38,8 +40,9 @@ namespace ParkingHereApi.Services
             _authorizationService = authorizationService;
             _userContextService = userContextService;
             _emailService = emailService;
+            _configuration = configuration;
         }
-        public int RegisterUser(RegisterUserDto dto)
+        public string RegisterUser(RegisterUserDto dto)
         {
             var newUser = new User()
             {
@@ -65,20 +68,7 @@ namespace ParkingHereApi.Services
             newUser.Vehicle.CreatedById = newUser.Id;
             _dbContext.SaveChanges();
 
-            var createEmail = new CreateEmail
-            {
-                EmailSubject = "Aktywuj konto",
-                EmailTo = newUser.Email,
-                EmailBody = $"Witaj {newUser.FirstName},\r\nkliknij w poniższy link aby aktywować konto: \r\nhttp://127.0.0.1:5173/activation?token={newUser.ActivationToken}",
-                EmailToName = $"{newUser.FirstName} {newUser.LastName}"
-            };
-
-            if (!_emailService.SendMail(createEmail))
-            {
-                throw new BadRequestException("Email not delivered");
-            }
-
-            return newUser.Id;
+            return newUser.ActivationToken;
         }
 
         public UserDto GetById(int id)
@@ -192,7 +182,7 @@ namespace ParkingHereApi.Services
             _dbContext.SaveChanges();
         }
 
-        public void ForgotPassword(UserResetPasswordStep1Dto userResetPasswordStep1Dto)
+        public string ForgotPassword(UserResetPasswordStep1Dto userResetPasswordStep1Dto)
         {
             var user = _dbContext
                 .Users
@@ -202,24 +192,18 @@ namespace ParkingHereApi.Services
             {
                 throw new BadRequestException("User not found");
             }
+            
+            if (user.ActivationDate == null)
+            {
+                throw new ForbidException();
+            }
 
             user.PasswordResetToken = CreateRandomToken();
             user.ResetTokenExpires = DateTime.Now.AddDays(1);
 
             _dbContext.SaveChanges();
 
-            var createEmail = new CreateEmail
-            {
-                EmailSubject = "Przywróć hasło",
-                EmailTo = user.Email,
-                EmailBody = $"Witaj {user.FirstName},\r\nkliknij w poniższy link aby przywrócić hasło: \r\nhttp://127.0.0.1:5173/reset-password?token={user.PasswordResetToken}",
-                EmailToName = $"{user.FirstName} {user.LastName}"
-            };
-
-            if (!_emailService.SendMail(createEmail))
-            {
-                throw new BadRequestException("Email not delivered");
-            }
+            return user.PasswordResetToken;
         }
 
         public void ResetPassword(string token, UserResetPasswordStep2Dto userResetPasswordDto)

@@ -25,8 +25,6 @@ builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(LogLevel.Trace);
 builder.Host.UseNLog();
 
-// Add services to the container.
-
 var authenticationSettings = new AuthenticationSettings();
 
 builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
@@ -55,11 +53,11 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         builder =>
         {
-            builder.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+            builder.WithOrigins("http://localhost:5173",
+               "http://127.0.0.1:5173")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
-
         });
 });
 
@@ -83,8 +81,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IEmailService, EmailService>();
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 
 var scope = app.Services.CreateScope();
 var seeder = scope.ServiceProvider.GetRequiredService<ParkingHereSeeder>();
