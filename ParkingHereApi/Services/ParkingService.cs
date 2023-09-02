@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using ParkingHereApi.Authorization;
 using ParkingHereApi.Entities;
 using ParkingHereApi.Enums;
 using ParkingHereApi.Exceptions;
 using ParkingHereApi.Models;
+using System;
 
 namespace ParkingHereApi.Services
 {
@@ -37,11 +39,6 @@ namespace ParkingHereApi.Services
                 .ToList();
 
             var parkingsDtos = _mapper.Map<List<ParkingDto>>(parkings);
-
-            foreach (var parking in parkingsDtos)
-            {
-                //parking.Prices = GetPrices(parking.Id);
-            }
 
             return parkingsDtos;
         }
@@ -168,16 +165,16 @@ namespace ParkingHereApi.Services
 
         public List<decimal> GetPrices(List<Spot> spots)
         {
-            var UniqueSpotsByType = spots.GroupBy(s => s.Type).Select(group => group.First());
+            var uniqueSpotsByType = spots.GroupBy(s => s.Type).Select(group => group.First()).ToList();
 
             var prices = new List<decimal>();
-
-            foreach (var spot in UniqueSpotsByType)
+            var types = Enum.GetValues(typeof(ParkingSpotType));
+            foreach (var type in types)
             {
-                prices.Add(spot.Price);
+                var spotType = uniqueSpotsByType.FirstOrDefault(p => p.Type.Equals(type.ToString()));
+                var price = spotType == null ? -1 : spotType.Price;
+                prices.Add(price);
             }
-
-            prices.Sort();
 
             return prices;
         }

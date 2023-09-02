@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using ParkingHereApi.Entities;
 using ParkingHereApi.Models;
 using ParkingHereApi.Services;
@@ -36,9 +37,9 @@ namespace ParkingHereApi.Controllers
         [HttpPost("register")]
         public ActionResult RegisterUser([FromBody] RegisterUserDto dto)
         {
-            var id = _accountService.RegisterUser(dto);
+            var token = _accountService.RegisterUser(dto);
 
-            return Created($"/api/account/{id}", null);
+            return Created("", token);
         }
 
         [HttpPost("login")]
@@ -68,9 +69,9 @@ namespace ParkingHereApi.Controllers
         [HttpPost("forgot-password")]
         public ActionResult ForgotPassword([FromBody] UserResetPasswordStep1Dto userResetPasswordStep1Dto)
         {
-            _accountService.ForgotPassword(userResetPasswordStep1Dto);
+            var token = _accountService.ForgotPassword(userResetPasswordStep1Dto);
 
-            return Ok();
+            return Ok(token);
         }
 
         [HttpPost("reset-password")]
