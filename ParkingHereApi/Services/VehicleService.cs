@@ -26,11 +26,11 @@ namespace ParkingHereApi.Services
             _accountService = accountService;
         }
 
-        public VehicleDto GetById(int id)
+        public VehicleDto GetById(int userId)
         {
             var vehicle = _dbContext
                 .Vehicles
-                .FirstOrDefault(u => u.Id == id);
+                .FirstOrDefault(u => u.CreatedById == userId);
 
             if (vehicle is null)
             {
@@ -58,24 +58,16 @@ namespace ParkingHereApi.Services
             return vehicleDto;
         }
 
-        public void Update(int id, VehicleDto dto)
+        public void Update(int userId, VehicleDto dto)
         {
             var vehicle = _dbContext
                 .Vehicles
-                .FirstOrDefault(u => u.Id == id);
+                .FirstOrDefault(u => u.CreatedById == userId);
 
             if (vehicle is null)
             {
                 throw new NotFoundException("Vehicle not found");
             }
-
-            //var authorizationResult = _authorizationService.AuthorizeAsync(_userContextService.User, vehicle,
-            //     new ResourceOperationRequirement(ResourceOperation.Update)).Result;
-
-            //if (!authorizationResult.Succeeded)
-            //{
-            //    throw new ForbidException();
-            //}
 
             vehicle.Brand = dto.Brand;
             vehicle.Model = dto.Model;

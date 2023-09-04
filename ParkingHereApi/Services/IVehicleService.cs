@@ -4,8 +4,8 @@ namespace ParkingHereApi.Services
 {
     public interface IVehicleService
     {
-        void Update(int id, VehicleDto dto);
-        VehicleDto GetById(int id);
+        void Update(int userId, VehicleDto dto);
+        VehicleDto GetById(int userId);
         VehicleDto GetMyVehicle();
 
     }
