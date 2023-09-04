@@ -15,10 +15,10 @@ namespace ParkingHereApi.Controllers
             _vehicleService = vehicleService;
         }
 
-        [HttpGet("{id}")]
-        public ActionResult Get([FromRoute] int id)
+        [HttpGet("{userId}")]
+        public ActionResult Get([FromRoute] int userId)
         {
-            var user = _vehicleService.GetById(id);
+            var user = _vehicleService.GetById(userId);
 
             return Ok(user);
         }
@@ -31,10 +31,10 @@ namespace ParkingHereApi.Controllers
             return Ok(user);
         }
 
-        [HttpPut("{id}")]
-        public ActionResult Update([FromRoute] int id, [FromBody] VehicleDto dto)
+        [HttpPut("{userId}")]
+        public ActionResult Update([FromRoute] int userId, [FromBody] VehicleDto dto)
         {
-            _vehicleService.Update(id, dto);
+            _vehicleService.Update(userId, dto);
 
             return Ok();
         }

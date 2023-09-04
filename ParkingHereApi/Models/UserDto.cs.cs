@@ -9,8 +9,6 @@ namespace ParkingHereApi.Models
         public string LastName { get; set; }
         public string Email { get; set; }
         public int RoleId { get; set; }
-        public string VehicleBrand { get; set; }
-        public string VehicleModel { get; set; }
-        public string VehicleRegistrationPlate { get; set; }
+        public int VehicleId { get; set; }
     }
 }
