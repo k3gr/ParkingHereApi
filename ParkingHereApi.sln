@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParkingHereApi", "ParkingHereApi\ParkingHereApi.csproj", "{BD0C429B-E176-4263-8002-503607DCE4E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParkingHere.Application", "ParkingHere.Application\ParkingHere.Application.csproj", "{902B599D-8C5C-4FA9-A664-94B4F7B743A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParkingHere.Domain", "ParkingHere.Domain\ParkingHere.Domain.csproj", "{36560E2E-A5DE-4D24-9BAA-7382C2B08B52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParkingHere.Infrastructure", "ParkingHere.Infrastructure\ParkingHere.Infrastructure.csproj", "{E046B332-E0FC-4874-8634-091298166E34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParkingHere.WebApi", "ParkingHere.WebApi\ParkingHere.WebApi.csproj", "{BDB633DB-ABB0-3E67-2EA3-AF8811A9AEF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +17,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BD0C429B-E176-4263-8002-503607DCE4E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BD0C429B-E176-4263-8002-503607DCE4E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BD0C429B-E176-4263-8002-503607DCE4E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BD0C429B-E176-4263-8002-503607DCE4E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{902B599D-8C5C-4FA9-A664-94B4F7B743A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{902B599D-8C5C-4FA9-A664-94B4F7B743A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{902B599D-8C5C-4FA9-A664-94B4F7B743A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{902B599D-8C5C-4FA9-A664-94B4F7B743A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36560E2E-A5DE-4D24-9BAA-7382C2B08B52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36560E2E-A5DE-4D24-9BAA-7382C2B08B52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36560E2E-A5DE-4D24-9BAA-7382C2B08B52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36560E2E-A5DE-4D24-9BAA-7382C2B08B52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E046B332-E0FC-4874-8634-091298166E34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E046B332-E0FC-4874-8634-091298166E34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E046B332-E0FC-4874-8634-091298166E34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E046B332-E0FC-4874-8634-091298166E34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDB633DB-ABB0-3E67-2EA3-AF8811A9AEF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDB633DB-ABB0-3E67-2EA3-AF8811A9AEF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDB633DB-ABB0-3E67-2EA3-AF8811A9AEF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDB633DB-ABB0-3E67-2EA3-AF8811A9AEF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
